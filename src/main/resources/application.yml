@@ -1,0 +1,31 @@
+---
+server:
+  port: 8096
+  contextPath: /loanApis
+---
+
+spring:
+profiles: default
+datasource:
+  crudeapp:
+    url: jdbc:mysql://localhost:3306/finessence
+    username: root
+    password: root
+    driverClassName: com.mysql.jdbc.Driver
+    defaultSchema:
+    maxPoolSize: 10
+    hibernate:
+      hbm2ddl.method: validate
+      show_sql: true
+      format_sql: true
+      dialect: org.hibernate.dialect.Oracle10gDialect
+      timeout: 2000
+logging:
+  file: finessence.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    org.springframework.web: INFO
+    com.finessence.loan: INFO
+    org.hibernate: INFO
