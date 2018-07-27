@@ -87,7 +87,7 @@ public class LoanApplicationController {
                 res = new ResponseEntity<>(responseCodes.LOAN_AMOUNT_WOULD_EXCEED_INSTALLMENT_SALARY_RATIO, HttpStatus.OK);
             } else if (loantype == null) {
                 res = new ResponseEntity<>(responseCodes.LOAN_TYPE_NOT_FOUND, HttpStatus.OK);
-            } else if (Integer.parseInt(loantype.getMaximumloanamount().toString()) < appliedamount) {
+            } else if (Integer.parseInt(loantype.getMaximumloanamount().toString()) != 0 && Integer.parseInt(loantype.getMaximumloanamount().toString()) < appliedamount) {
                 res = new ResponseEntity<>(responseCodes.LOAN_AMOUNT_EXCEEDS_MAX_AMOUNT, HttpStatus.OK);
             } else if (loantype.getMaximumrepaymentperiod() < loan.getRepaymentPeriod()) {
                 ApiResponse VALIDATION_FAIL = responseCodes.LOAN_PERIOD_EXCEEDS_MAX_REPAY_PERIOD;
@@ -488,6 +488,37 @@ public class LoanApplicationController {
         }
         return res;
     }
+    @RequestMapping(value = "/findByMemberCode", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> findByMemberCode(@RequestHeader(value = "Authorization") String authKey, @RequestParam("membercode") String membercode, @RequestParam("start") int start, @RequestParam("end") int end) {
+        ResponseEntity<?> res = null;
+        //return record set and total count of rows on the entity
+        try {
+            Token token = globalFunctions.parseJWT(authKey);
+
+            String q = "select r from Loanapplication r where membercode=:membercode ";
+            Map<String, Object> map = new HashMap<>();
+            map.put("membercode", membercode);
+            List<Loanapplication> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
+
+            //List<LoanReport> entity = loanRepository.findCounties();
+            if (entity != null) {
+                LOG.info("Fetched List of:" + entity.size());
+                ApiResponse SUCCESS = responseCodes.SUCCESS;
+                SUCCESS.setEntity(entity);
+                res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+
+            } else {
+                LOG.error("No records found");
+                res = new ResponseEntity<>(responseCodes.NO_RECORDS_FOUND, HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Error Occured:" + ex.getMessage());
+            res = new ResponseEntity<>(responseCodes.EXCEPTION_OCCURRED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return res;
+    }
 
     @RequestMapping(value = "/checkIfuserHadAlreadyApproved", method = RequestMethod.GET)
     @ResponseBody
@@ -613,15 +644,15 @@ public class LoanApplicationController {
             globalFunctions.createDisbursement(loan, token);
         }
     }
-    
-     public void processLoanAfterApprovalsDataEntry(Loanapplication loan, Token token) {
-            loan.setApplicationstatus("Active");
-            loan.setApprovedamount(loan.getAppliedamount());
-            loan.setApprovedby(new BigInteger(token.getUserid()));
+
+    public void processLoanAfterApprovalsDataEntry(Loanapplication loan, Token token) {
+        loan.setApplicationstatus("Active");
+        loan.setApprovedamount(loan.getAppliedamount());
+        loan.setApprovedby(new BigInteger(token.getUserid()));
 //            String approvalComments = "Loan Automaticaly approved during data entry of exising loans.";
 //            globalFunctions.logApprovals(loan.getCurrentApprovalLevel(), loan.getGroupid(), approvalComments, loan.getApprovalStatus(), loan.getAppliedamount(), loan.getAppliedamount(), loan.getId(), "LOAN_APPLICATION", Integer.parseInt(token.getUserid()));
-            globalFunctions.createDisbursementDuringDataEntry(loan, token);
-      
+        globalFunctions.createDisbursementDuringDataEntry(loan, token);
+
     }
 
     @RequestMapping(value = "/loanMonthlyScheduleByLoanApplicationId", method = RequestMethod.GET)

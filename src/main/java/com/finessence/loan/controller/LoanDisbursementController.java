@@ -249,7 +249,6 @@ public class LoanDisbursementController {
 
 //            String q = "select r from LoanDisbursements r ";
 //            List<LoanDisbursements> entity = crudService.fetchWithHibernateQuery(q, Collections.EMPTY_MAP, start, end);
-
             String addedQueryfilter = "";
             Map<String, Object> params = new HashMap<>();
             List<LoanDisbursements> entity = null;
@@ -264,7 +263,7 @@ public class LoanDisbursementController {
             } else {
                 entity = crudService.fetchWithHibernateQuery(q, Collections.EMPTY_MAP, start, end);
             }
-            
+
             if (entity != null) {
                 ApiResponse SUCCESS = responseCodes.SUCCESS;
                 SUCCESS.setEntity(entity);
@@ -310,10 +309,10 @@ public class LoanDisbursementController {
         }
         return res;
     }
-    
-     @RequestMapping(value = "/findApprovedDisbursements", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/findApprovedDisbursements", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<?> findApprovedDisbursements(@RequestHeader(value = "Authorization") String authKey,@RequestParam("start") int start, @RequestParam("end") int end) {
+    public ResponseEntity<?> findApprovedDisbursements(@RequestHeader(value = "Authorization") String authKey, @RequestParam("start") int start, @RequestParam("end") int end) {
         ResponseEntity<?> res = null;
         //return record set and total count of rows on the entity
         try {
@@ -321,7 +320,7 @@ public class LoanDisbursementController {
 
             String q = "select r from LoanDisbursements r where approvalStatus=:approvalStatus";
             Map<String, Object> map = new HashMap<>();
-             map.put("approvalStatus", "Approved");
+            map.put("approvalStatus", "Approved");
             List<LoanDisbursements> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
 
             if (entity != null) {

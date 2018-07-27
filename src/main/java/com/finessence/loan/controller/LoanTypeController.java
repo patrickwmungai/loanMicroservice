@@ -56,7 +56,12 @@ public class LoanTypeController {
         ResponseEntity<?> res = null;
         try {
             Token token = globalFunctions.parseJWT(authKey);
-
+            String ischeckoff = loantype.getIscheckoff() == null ? "NO" : loantype.getIscheckoff();
+            BigInteger maxamount = loantype.getMaximumloanamount() == null ? BigInteger.ZERO : loantype.getMaximumloanamount();
+            loantype.setMaximumloanamount(maxamount);
+            loantype.setIscheckoff(ischeckoff);
+            loantype.setInsurancefee(Double.parseDouble("0"));
+            loantype.setInsurancefeetype("Fixed");
             loantype.setCreatedBy(Integer.parseInt(token.getUserid()));
             loantype.setUpdatedBy(Integer.parseInt(token.getUserid()));
             loantype.setAddedby(token.getUserid());
@@ -65,15 +70,15 @@ public class LoanTypeController {
             GroupApprovalLevelsConfig approvalLevelsConfig = globalFunctions.getGroupsApprovalLevelsConfigByType("LOAN_TYPE", loantype.getGroupid());
             if (approvalLevelsConfig != null) {
                 String[] levels = approvalLevelsConfig.getTypeApprovals().split(",");
-                 LOG.info("Approval level set "+approvalLevelsConfig.getGroupId()+" levels "+approvalLevelsConfig.getType());
+                LOG.info("Approval level set " + approvalLevelsConfig.getGroupId() + " levels " + approvalLevelsConfig.getType());
                 if (levels.length > 0) {
-                     LOG.info("Approval level length:"+levels.length+" setting status as pending status inactive level as "+levels[0]);
+                    LOG.info("Approval level length:" + levels.length + " setting status as pending status inactive level as " + levels[0]);
                     loantype.setCurrentApprovalLevel(Integer.parseInt(levels[0]));
                     loantype.setMaxApprovalLevel(levels.length);
                     loantype.setApprovalStatus("Pending");
                     loantype.setStatus("InActive");
                 } else {
-                    LOG.info("Approval level set length:"+0);
+                    LOG.info("Approval level set length:" + 0);
                     loantype.setApprovalStatus("Approved");
                     loantype.setMaxApprovalLevel(0);
                     loantype.setStatus("Active");
@@ -281,11 +286,51 @@ public class LoanTypeController {
         //return record set and total count of rows on the entity
         try {
             Token token = globalFunctions.parseJWT(authKey);
+            String addedQueryfilter="";
+            if (token.getIsadminagent().equals("NO")) {
+                addedQueryfilter = " and groupid ='"+token.getGroupID()+"' ";
+            }
 
-            String q = "select r from Loantype r where currentApprovalLevel=:currentApprovalLevel and approvalStatus=:approvalStatus ";
+            String q = "select r from Loantype r where currentApprovalLevel=:currentApprovalLevel and approvalStatus=:approvalStatus "+addedQueryfilter;
             Map<String, Object> map = new HashMap<>();
             map.put("currentApprovalLevel", currentApprovalLevel);
             map.put("approvalStatus", approvalStatus);
+            List<Loantype> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
+
+            if (entity != null) {
+                LOG.info("Fetched List of:" + entity.size());
+                ApiResponse SUCCESS = responseCodes.SUCCESS;
+                SUCCESS.setEntity(entity);
+                res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+
+            } else {
+                LOG.error("No records found");
+                res = new ResponseEntity<>(responseCodes.NO_RECORDS_FOUND, HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Error Occured:" + ex.getMessage());
+            res = new ResponseEntity<>(responseCodes.EXCEPTION_OCCURRED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return res;
+    }
+
+    @RequestMapping(value = "/findApprovedLoanTypes", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> findApprovedLoanTypes(@RequestHeader(value = "Authorization") String authKey, @RequestParam("currentApprovalLevel") Integer currentApprovalLevel, @RequestParam("approvalStatus") String approvalStatus, @RequestParam("start") int start, @RequestParam("end") int end) {
+        ResponseEntity<?> res = null;
+        //return record set and total count of rows on the entity
+        try {
+            Token token = globalFunctions.parseJWT(authKey);
+
+            String addedQueryfilter="";
+            if (token.getIsadminagent().equals("NO")) {
+                addedQueryfilter = " and groupid ='"+token.getGroupID()+"' ";
+            }
+            
+            String q = "select r from Loantype r where and approvalStatus=:approvalStatus "+addedQueryfilter;
+            Map<String, Object> map = new HashMap<>();
+            map.put("approvalStatus", "Approved");
             List<Loantype> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
 
             if (entity != null) {
