@@ -8,6 +8,9 @@ spring:
 profiles: default
 datasource:
   crudeapp:
+#    url: jdbc:mysql://178.79.148.209:3306/finessence
+#    username: finessence
+#    password: '@fincore2018'
     url: jdbc:mysql://localhost:3306/finessence
     username: root
     password: root

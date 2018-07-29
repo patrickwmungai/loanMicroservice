@@ -246,7 +246,7 @@ public class LoanApplicationController {
                 loan.setId(Long.parseLong(test.toString()));
                 processLoanAfterApprovalsDataEntry(loan, token);
 
-                //Cretion of loan account
+                //Creation of loan account
                 ApiResponse SUCCESS = responseCodes.SUCCESS;
                 SUCCESS.setEntity(test);
                 res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
