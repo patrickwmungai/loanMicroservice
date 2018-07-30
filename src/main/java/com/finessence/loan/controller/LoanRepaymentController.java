@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.finessence.loan.repository.CrudService;
 import com.finessence.loan.services.GlobalFunctions;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Collections;
@@ -78,9 +79,9 @@ public class LoanRepaymentController {
                     if (memberLoanSettlementAccount == null) {
                         res = new ResponseEntity<>(responseCodes.SETTLEMENT_ACCOUNT_NOT_FOUND, HttpStatus.OK);
                     } else {
-                        Double amountDue = globalFunctions.amountToPay(schedulesDue);
+                        BigDecimal amountDue = globalFunctions.amountToPay(schedulesDue);
                         //Check If Payment amount is sufficient in settlement account
-                        if (Integer.parseInt(memberLoanSettlementAccount.getAccountbalance().toString()) < amountDue) {
+                        if (memberLoanSettlementAccount.getAccountbalance().doubleValue() < amountDue.doubleValue()) {
                             ApiResponse VALIDATION_FAIL = responseCodes.INSUFFICIENT_BALANCE_FOR_LOAN_REPAYMENT;
                             String errorMsg = VALIDATION_FAIL.getResponseDescription().replace("<RAMOUNT>", memberLoanSettlementAccount.getAccountbalance().toString()).replace("<IAMOUNT>", amountDue.toString());
                             VALIDATION_FAIL.setResponseDescription(errorMsg);
@@ -111,7 +112,7 @@ public class LoanRepaymentController {
                             c.add(Calendar.DATE, 30);
                             Date dPlus30Days = c.getTime();
                             loandetails.setNextpaymentdate(dPlus30Days);
-                            BigInteger monthlyInterest = loandetails.getInteresttotal().divide(new BigInteger(loanapplication.getRepaymentPeriod().toString()));
+                            BigDecimal monthlyInterest = loandetails.getInteresttotal().divide(new BigDecimal(loanapplication.getRepaymentPeriod().toString()));
                             loandetails.setTotalinterestpaid(loandetails.getTotalinterestpaid().add(monthlyInterest));
                             loandetails.setTotalpriciplepaid(loandetails.getTotalpriciplepaid().add(loandetails.getInstallmentamount()));
                             crudService.saveOrUpdate(loandetails);

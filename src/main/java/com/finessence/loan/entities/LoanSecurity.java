@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -50,7 +51,7 @@ public class LoanSecurity implements Serializable {
     private String name;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "VALUE")
-    private Double value;
+    private BigDecimal value;
     @Size(max = 350)
     @Column(name = "DESCRIPTION")
     private String description;
@@ -95,11 +96,11 @@ public class LoanSecurity implements Serializable {
         this.name = name;
     }
 
-    public Double getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 
-    public void setValue(Double value) {
+    public void setValue(BigDecimal value) {
         this.value = value;
     }
 

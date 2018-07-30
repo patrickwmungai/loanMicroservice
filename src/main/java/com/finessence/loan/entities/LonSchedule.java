@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -56,22 +57,22 @@ public class LonSchedule implements Serializable {
     private Date paymentDate;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "BEGINNING_BALANCE")
-    private Double beginningBalance;
+    private BigDecimal beginningBalance;
     @Column(name = "INSTALMENT_AMOUNT")
-    private Double instalmentAmount;
+    private BigDecimal instalmentAmount;
     @Column(name = "PRINCIPAL")
-    private Double principal;
+    private BigDecimal principal;
     @Column(name = "INTEREST")
-    private Double interest;
+    private BigDecimal interest;
     @Column(name = "ENDING_BALANCE")
-    private Double endingBalance;
+    private BigDecimal endingBalance;
     @Column(name = "CUMULATIVE_INTEREST")
-    private Double cumulativeInterest;
+    private BigDecimal cumulativeInterest;
     @Size(max = 45)
     @Column(name = "PAID_STATUS")
     private String paidStatus;
     @Column(name = "PENALTY")
-    private Double penalty;
+    private BigDecimal penalty;
     @Column(name = "PAYMENT_NO")
     private Integer paymentNo;
     @Column(name = "NO_OF_DUE_DATE")
@@ -136,51 +137,51 @@ public class LonSchedule implements Serializable {
         this.paymentDate = paymentDate;
     }
 
-    public Double getBeginningBalance() {
+    public BigDecimal getBeginningBalance() {
         return beginningBalance;
     }
 
-    public void setBeginningBalance(Double beginningBalance) {
+    public void setBeginningBalance(BigDecimal beginningBalance) {
         this.beginningBalance = beginningBalance;
     }
 
-    public Double getInstalmentAmount() {
+    public BigDecimal getInstalmentAmount() {
         return instalmentAmount;
     }
 
-    public void setInstalmentAmount(Double instalmentAmount) {
+    public void setInstalmentAmount(BigDecimal instalmentAmount) {
         this.instalmentAmount = instalmentAmount;
     }
 
-    public Double getPrincipal() {
+    public BigDecimal getPrincipal() {
         return principal;
     }
 
-    public void setPrincipal(Double principal) {
+    public void setPrincipal(BigDecimal principal) {
         this.principal = principal;
     }
 
-    public Double getInterest() {
+    public BigDecimal getInterest() {
         return interest;
     }
 
-    public void setInterest(Double interest) {
+    public void setInterest(BigDecimal interest) {
         this.interest = interest;
     }
 
-    public Double getEndingBalance() {
+    public BigDecimal getEndingBalance() {
         return endingBalance;
     }
 
-    public void setEndingBalance(Double endingBalance) {
+    public void setEndingBalance(BigDecimal endingBalance) {
         this.endingBalance = endingBalance;
     }
 
-    public Double getCumulativeInterest() {
+    public BigDecimal getCumulativeInterest() {
         return cumulativeInterest;
     }
 
-    public void setCumulativeInterest(Double cumulativeInterest) {
+    public void setCumulativeInterest(BigDecimal cumulativeInterest) {
         this.cumulativeInterest = cumulativeInterest;
     }
 
@@ -192,11 +193,11 @@ public class LonSchedule implements Serializable {
         this.paidStatus = paidStatus;
     }
 
-    public Double getPenalty() {
+    public BigDecimal getPenalty() {
         return penalty;
     }
 
-    public void setPenalty(Double penalty) {
+    public void setPenalty(BigDecimal penalty) {
         this.penalty = penalty;
     }
 

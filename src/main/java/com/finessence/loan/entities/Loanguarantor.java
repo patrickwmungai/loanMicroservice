@@ -1,6 +1,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class Loanguarantor implements Serializable {
     @Column(name = "ID")
     private Long id;
     @Column(name = "AMOUNT")
-    private BigInteger amount;
+    private BigDecimal amount;
     @Column(name = "DATEADDED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateadded;
@@ -75,11 +76,11 @@ public class Loanguarantor implements Serializable {
         this.id = id;
     }
 
-    public BigInteger getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(BigInteger amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

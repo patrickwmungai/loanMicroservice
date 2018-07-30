@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -59,7 +60,7 @@ public class LoanDisbursements implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "AMOUNT")
-    private long amount;
+    private BigDecimal amount;
     @Size(max = 45)
     @Column(name = "DISBURSEMENT_CHANNEL")
     private String disbursementChannel;
@@ -92,7 +93,7 @@ public class LoanDisbursements implements Serializable {
         this.id = id;
     }
 
-    public LoanDisbursements(Integer id, int loanApplicationId, String groupId, long amount) {
+    public LoanDisbursements(Integer id, int loanApplicationId, String groupId, BigDecimal amount) {
         this.id = id;
         this.loanApplicationId = loanApplicationId;
         this.groupId = groupId;
@@ -139,11 +140,11 @@ public class LoanDisbursements implements Serializable {
         this.groupId = groupId;
     }
 
-    public long getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(long amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

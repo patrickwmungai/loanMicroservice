@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -74,9 +75,9 @@ public class LoanRepayment implements Serializable {
     private int updatedBy;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "AMOUNT")
-    private Float amount;
+    private BigDecimal amount;
     @Column(name = "RUNNING_BALANCE")
-    private Float runningBalance;
+    private BigDecimal runningBalance;
 
     public LoanRepayment() {
     }
@@ -94,11 +95,11 @@ public class LoanRepayment implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Float getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Float amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -166,11 +167,11 @@ public class LoanRepayment implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Float getRunningBalance() {
+    public BigDecimal getRunningBalance() {
         return runningBalance;
     }
 
-    public void setRunningBalance(Float runningBalance) {
+    public void setRunningBalance(BigDecimal runningBalance) {
         this.runningBalance = runningBalance;
     }
 

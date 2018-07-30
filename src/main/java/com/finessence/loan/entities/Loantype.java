@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Basic;
@@ -59,7 +60,7 @@ public class Loantype implements Serializable {
     @Column(name = "APPLICATIONFEETYPE")
     private String applicationfeetype;
     @Column(name = "APPLICATIONFEE")
-    private Double applicationfee;
+    private BigDecimal applicationfee;
     @Column(name = "DATEADDED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateadded;
@@ -69,9 +70,9 @@ public class Loantype implements Serializable {
     @Column(name = "INSURANCEFEETYPE")
     private String insurancefeetype;
     @Column(name = "INSURANCEFEE")
-    private Double insurancefee;
+    private BigDecimal insurancefee;
     @Column(name = "INTERESTRATE")
-    private Double interestrate;
+    private BigDecimal interestrate;
     @Size(max = 255)
     @Column(name = "INTERESTTYPE")
     private String interesttype;
@@ -164,11 +165,11 @@ public class Loantype implements Serializable {
         this.addedby = addedby;
     }
 
-    public Double getApplicationfee() {
+    public BigDecimal getApplicationfee() {
         return applicationfee;
     }
 
-    public void setApplicationfee(Double applicationfee) {
+    public void setApplicationfee(BigDecimal applicationfee) {
         this.applicationfee = applicationfee;
     }
 
@@ -188,19 +189,19 @@ public class Loantype implements Serializable {
         this.groupid = groupid;
     }
 
-    public Double getInsurancefee() {
+    public BigDecimal getInsurancefee() {
         return insurancefee;
     }
 
-    public void setInsurancefee(Double insurancefee) {
+    public void setInsurancefee(BigDecimal insurancefee) {
         this.insurancefee = insurancefee;
     }
 
-    public Double getInterestrate() {
+    public BigDecimal getInterestrate() {
         return interestrate;
     }
 
-    public void setInterestrate(Double interestrate) {
+    public void setInterestrate(BigDecimal interestrate) {
         this.interestrate = interestrate;
     }
 

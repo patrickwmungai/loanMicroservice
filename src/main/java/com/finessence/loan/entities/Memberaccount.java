@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Basic;
@@ -58,7 +59,7 @@ public class Memberaccount implements Serializable {
     @Column(name = "ACCOUNTID")
     private String accountid;
     @Column(name = "ACCOUNTBALANCE")
-    private BigInteger accountbalance;
+    private BigDecimal accountbalance;
     @Size(max = 255)
     @Column(name = "ACCOUNTNAME")
     private String accountname;
@@ -119,11 +120,11 @@ public class Memberaccount implements Serializable {
         this.accountid = accountid;
     }
 
-    public BigInteger getAccountbalance() {
+    public BigDecimal getAccountbalance() {
         return accountbalance;
     }
 
-    public void setAccountbalance(BigInteger accountbalance) {
+    public void setAccountbalance(BigDecimal accountbalance) {
         this.accountbalance = accountbalance;
     }
 

@@ -6,7 +6,8 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
-import java.math.BigInteger;
+import java.math.BigDecimal;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -41,11 +42,11 @@ public class Loanrepayhistory implements Serializable {
     @Column(name = "ID")
     private Long id;
     @Column(name = "INTERESTAMOUNTPAID")
-    private BigInteger interestamountpaid;
+    private BigDecimal interestamountpaid;
     @Column(name = "LOANDETAILSID")
-    private BigInteger loandetailsid;
+    private BigDecimal loandetailsid;
     @Column(name = "PRINCIPLEAMOUNTPAID")
-    private BigInteger principleamountpaid;
+    private BigDecimal principleamountpaid;
     @Column(name = "REPAYDATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date repaydate;
@@ -65,27 +66,27 @@ public class Loanrepayhistory implements Serializable {
         this.id = id;
     }
 
-    public BigInteger getInterestamountpaid() {
+    public BigDecimal getInterestamountpaid() {
         return interestamountpaid;
     }
 
-    public void setInterestamountpaid(BigInteger interestamountpaid) {
+    public void setInterestamountpaid(BigDecimal interestamountpaid) {
         this.interestamountpaid = interestamountpaid;
     }
 
-    public BigInteger getLoandetailsid() {
+    public BigDecimal getLoandetailsid() {
         return loandetailsid;
     }
 
-    public void setLoandetailsid(BigInteger loandetailsid) {
+    public void setLoandetailsid(BigDecimal loandetailsid) {
         this.loandetailsid = loandetailsid;
     }
 
-    public BigInteger getPrincipleamountpaid() {
+    public BigDecimal getPrincipleamountpaid() {
         return principleamountpaid;
     }
 
-    public void setPrincipleamountpaid(BigInteger principleamountpaid) {
+    public void setPrincipleamountpaid(BigDecimal principleamountpaid) {
         this.principleamountpaid = principleamountpaid;
     }
 

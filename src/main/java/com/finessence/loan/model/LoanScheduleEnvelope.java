@@ -6,6 +6,7 @@
 package com.finessence.loan.model;
 
 import com.finessence.loan.entities.LonSchedule;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -15,44 +16,44 @@ import java.util.List;
  */
 public class LoanScheduleEnvelope {
 
-    private double monthlyPayment;
-    private double principal;
-    private double totalInterest;
-    private double totalPayment;
+    private BigDecimal monthlyPayment;
+    private BigDecimal principal;
+    private BigDecimal totalInterest;
+    private BigDecimal totalPayment;
     private double repaymentMonths;
     private Date startDate;
     private Date endDate;
     private List<LonSchedule> loanSchedules;
 
-    public double getMonthlyPayment() {
+    public BigDecimal getMonthlyPayment() {
         return monthlyPayment;
     }
 
-    public void setMonthlyPayment(double monthlyPayment) {
+    public void setMonthlyPayment(BigDecimal monthlyPayment) {
         this.monthlyPayment = monthlyPayment;
     }
 
-    public double getPrincipal() {
+    public BigDecimal getPrincipal() {
         return principal;
     }
 
-    public void setPrincipal(double principal) {
+    public void setPrincipal(BigDecimal principal) {
         this.principal = principal;
     }
 
-    public double getTotalInterest() {
+    public BigDecimal getTotalInterest() {
         return totalInterest;
     }
 
-    public void setTotalInterest(double totalInterest) {
+    public void setTotalInterest(BigDecimal totalInterest) {
         this.totalInterest = totalInterest;
     }
 
-    public double getTotalPayment() {
+    public BigDecimal getTotalPayment() {
         return totalPayment;
     }
 
-    public void setTotalPayment(double totalPayment) {
+    public void setTotalPayment(BigDecimal totalPayment) {
         this.totalPayment = totalPayment;
     }
 

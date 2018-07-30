@@ -4,7 +4,7 @@
  
     <groupId>com.finessence.loan</groupId>
     <artifactId>loanMicroService</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.8</version>
     <packaging>jar</packaging>
     <name>LoanMicroService</name>
     <parent>

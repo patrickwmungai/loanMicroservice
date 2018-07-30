@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.finessence.loan.repository.CrudService;
 import com.finessence.loan.services.GlobalFunctions;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
@@ -81,7 +82,7 @@ public class LoanApplicationController {
             Integer appliedamount = Integer.parseInt(loan.getAppliedamount().toString());
             if (groupmember == null) {
                 res = new ResponseEntity<>(responseCodes.MEMBER_NOT_FOUND, HttpStatus.OK);
-            } else if (groupmember.getMonthlySalary() <= 0) {
+            } else if (groupmember.getMonthlySalary().doubleValue() <= 0) {
                 res = new ResponseEntity<>(responseCodes.MEMBER_SALARY_NOT_SET_OR_ZERO, HttpStatus.OK);
             } else if (!globalFunctions.validLoanIncomeRatio(groupmember, loantype, loan)) {
                 res = new ResponseEntity<>(responseCodes.LOAN_AMOUNT_WOULD_EXCEED_INSTALLMENT_SALARY_RATIO, HttpStatus.OK);
@@ -488,17 +489,19 @@ public class LoanApplicationController {
         }
         return res;
     }
-    @RequestMapping(value = "/findByMemberCode", method = RequestMethod.GET)
+    @RequestMapping(value = "/findByMemberCodeOrPhoneOrIdNumber", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<?> findByMemberCode(@RequestHeader(value = "Authorization") String authKey, @RequestParam("membercode") String membercode, @RequestParam("start") int start, @RequestParam("end") int end) {
+    public ResponseEntity<?> findByMemberCodeOrPhoneOrIdNumber(@RequestHeader(value = "Authorization") String authKey, 
+            @RequestParam("searchParam") String searchParam, @RequestParam("start") int start, @RequestParam("end") int end) {
         ResponseEntity<?> res = null;
         //return record set and total count of rows on the entity
         try {
             Token token = globalFunctions.parseJWT(authKey);
 
-            String q = "select r from Loanapplication r where membercode=:membercode ";
+            String q = "select r from Loanapplication r where membercode=:searchParam or"
+                    + " membercode in (select membercode from Groupmember p where telephone=:searchParam or idnumber=:searchParam)";
             Map<String, Object> map = new HashMap<>();
-            map.put("membercode", membercode);
+            map.put("searchParam", searchParam);            
             List<Loanapplication> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
 
             //List<LoanReport> entity = loanRepository.findCounties();
@@ -609,7 +612,7 @@ public class LoanApplicationController {
 
     @RequestMapping(value = "/generateLoanSchedule", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<?> generateLoanSchedule(@RequestHeader(value = "Authorization") String authKey, @RequestParam("intestRatePerYear") double intestRatePerYear, @RequestParam("repaymentDurationInMonths") double repaymentDurationInMonths, @RequestParam("principal") double principal, @RequestParam("startDate") String dateString) {
+    public ResponseEntity<?> generateLoanSchedule(@RequestHeader(value = "Authorization") String authKey, @RequestParam("intestRatePerYear") BigDecimal intestRatePerYear, @RequestParam("repaymentDurationInMonths") double repaymentDurationInMonths, @RequestParam("principal") BigDecimal principal, @RequestParam("startDate") String dateString) {
         ResponseEntity<?> res = null;
         //return record set and total count of rows on the entity
         //date format 01/02/2018

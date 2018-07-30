@@ -1,6 +1,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
@@ -51,9 +52,9 @@ public class Loanapplication implements Serializable {
     @Column(name = "APPLICATIONSTATUS")
     private String applicationstatus;
     @Column(name = "APPLIEDAMOUNT")
-    private BigInteger appliedamount;
+    private BigDecimal appliedamount;
     @Column(name = "APPROVEDAMOUNT")
-    private BigInteger approvedamount;
+    private BigDecimal approvedamount;
     @Column(name = "APPROVEDBY")
     private BigInteger approvedby;
     @Size(max = 255)
@@ -80,15 +81,15 @@ public class Loanapplication implements Serializable {
     @Column(name = "LOAN_ACCOUNT_NO")
     private String loanAccountNo;
     @Column(name = "INTEREST_RATE")
-    private Double interestRate;
+    private BigDecimal interestRate;
     @Column(name = "LOAN_SETTLEMENT_ACCOUNT_NO")
     private String loanSettlementAccountNo;
     @Column(name = "IMPORT_ID")
     private Integer importId;
     @Column(name = "APPLICATION_FEE")
-    private Double applicationFee;
+    private BigDecimal applicationFee;
     @Column(name = "INSURANCE_FEE")
-    private Double insuranceFee;
+    private BigDecimal insuranceFee;
     @Transient
     private List<Loanguarantor> loanguarantors;
     @Transient
@@ -96,16 +97,16 @@ public class Loanapplication implements Serializable {
     @Transient
     private boolean loggedInUserCanApprove;
     @Transient
-    private double loanBalance;
+    private BigDecimal loanBalance;
 
     public Loanapplication() {
     }
 
-    public double getLoanBalance() {
+    public BigDecimal getLoanBalance() {
         return loanBalance;
     }
 
-    public void setLoanBalance(double loanBalance) {
+    public void setLoanBalance(BigDecimal loanBalance) {
         this.loanBalance = loanBalance;
     }
 
@@ -126,11 +127,11 @@ public class Loanapplication implements Serializable {
         this.loansecuritys = loansecuritys;
     }
 
-    public Double getInterestRate() {
+    public BigDecimal getInterestRate() {
         return interestRate;
     }
 
-    public void setInterestRate(Double interestRate) {
+    public void setInterestRate(BigDecimal interestRate) {
         this.interestRate = interestRate;
     }
 
@@ -202,19 +203,19 @@ public class Loanapplication implements Serializable {
         this.applicationstatus = applicationstatus;
     }
 
-    public BigInteger getAppliedamount() {
+    public BigDecimal getAppliedamount() {
         return appliedamount;
     }
 
-    public void setAppliedamount(BigInteger appliedamount) {
+    public void setAppliedamount(BigDecimal appliedamount) {
         this.appliedamount = appliedamount;
     }
 
-    public BigInteger getApprovedamount() {
+    public BigDecimal getApprovedamount() {
         return approvedamount;
     }
 
-    public void setApprovedamount(BigInteger approvedamount) {
+    public void setApprovedamount(BigDecimal approvedamount) {
         this.approvedamount = approvedamount;
     }
 
@@ -290,19 +291,19 @@ public class Loanapplication implements Serializable {
         this.importId = importId;
     }
 
-    public Double getApplicationFee() {
+    public BigDecimal getApplicationFee() {
         return applicationFee;
     }
 
-    public void setApplicationFee(Double applicationFee) {
+    public void setApplicationFee(BigDecimal applicationFee) {
         this.applicationFee = applicationFee;
     }
 
-    public Double getInsuranceFee() {
+    public BigDecimal getInsuranceFee() {
         return insuranceFee;
     }
 
-    public void setInsuranceFee(Double insuranceFee) {
+    public void setInsuranceFee(BigDecimal insuranceFee) {
         this.insuranceFee = insuranceFee;
     }
 

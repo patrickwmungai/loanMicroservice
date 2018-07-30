@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import javax.persistence.Basic;
@@ -64,18 +65,18 @@ public class Loandetails implements Serializable {
     @Column(name = "APPLICATIONID")
     private BigInteger applicationid;
     @Column(name = "DISBURSEMENTAMOUNT")
-    private BigInteger disbursementamount;
+    private BigDecimal disbursementamount;
     @Column(name = "DISBURSEMENTDATE")
     @Temporal(TemporalType.DATE)
     private Date disbursementdate;
     @Column(name = "GROUPID")
     private String groupid;
     @Column(name = "INSTALLMENTAMOUNT")
-    private BigInteger installmentamount;
+    private BigDecimal installmentamount;
     @Column(name = "INTERESTTOTAL")
-    private BigInteger interesttotal;
+    private BigDecimal interesttotal;
     @Column(name = "LASTPAYMENTAMOUNT")
-    private BigInteger lastpaymentamount;
+    private BigDecimal lastpaymentamount;
     @Column(name = "LASTPAYMENTDATE")
     @Temporal(TemporalType.DATE)
     private Date lastpaymentdate;
@@ -83,21 +84,21 @@ public class Loandetails implements Serializable {
     @Column(name = "LOANACCOUNTID")
     private String loanaccountid;
     @Column(name = "LOANBALANCE")
-    private BigInteger loanbalance;
+    private BigDecimal loanbalance;
     @Size(max = 255)
     @Column(name = "MEMBERCODE")
     private String membercode;
     @Column(name = "NEXTPAYMENTAMOUNT")
-    private BigInteger nextpaymentamount;
+    private BigDecimal nextpaymentamount;
     @Column(name = "NEXTPAYMENTDATE")
     @Temporal(TemporalType.DATE)
     private Date nextpaymentdate;
     @Column(name = "PRINCIPLETOTAL")
-    private BigInteger principletotal;
+    private BigDecimal principletotal;
     @Column(name = "TOTALINTERESTPAID")
-    private BigInteger totalinterestpaid;
+    private BigDecimal totalinterestpaid;
     @Column(name = "TOTALPRICIPLEPAID")
-    private BigInteger totalpriciplepaid;
+    private BigDecimal totalpriciplepaid;
 
     public Loandetails() {
     }
@@ -146,11 +147,11 @@ public class Loandetails implements Serializable {
         this.applicationid = applicationid;
     }
 
-    public BigInteger getDisbursementamount() {
+    public BigDecimal getDisbursementamount() {
         return disbursementamount;
     }
 
-    public void setDisbursementamount(BigInteger disbursementamount) {
+    public void setDisbursementamount(BigDecimal disbursementamount) {
         this.disbursementamount = disbursementamount;
     }
 
@@ -162,27 +163,27 @@ public class Loandetails implements Serializable {
         this.disbursementdate = disbursementdate;
     }
 
-    public BigInteger getInstallmentamount() {
+    public BigDecimal getInstallmentamount() {
         return installmentamount;
     }
 
-    public void setInstallmentamount(BigInteger installmentamount) {
+    public void setInstallmentamount(BigDecimal installmentamount) {
         this.installmentamount = installmentamount;
     }
 
-    public BigInteger getInteresttotal() {
+    public BigDecimal getInteresttotal() {
         return interesttotal;
     }
 
-    public void setInteresttotal(BigInteger interesttotal) {
+    public void setInteresttotal(BigDecimal interesttotal) {
         this.interesttotal = interesttotal;
     }
 
-    public BigInteger getLastpaymentamount() {
+    public BigDecimal getLastpaymentamount() {
         return lastpaymentamount;
     }
 
-    public void setLastpaymentamount(BigInteger lastpaymentamount) {
+    public void setLastpaymentamount(BigDecimal lastpaymentamount) {
         this.lastpaymentamount = lastpaymentamount;
     }
 
@@ -202,11 +203,11 @@ public class Loandetails implements Serializable {
         this.loanaccountid = loanaccountid;
     }
 
-    public BigInteger getLoanbalance() {
+    public BigDecimal getLoanbalance() {
         return loanbalance;
     }
 
-    public void setLoanbalance(BigInteger loanbalance) {
+    public void setLoanbalance(BigDecimal loanbalance) {
         this.loanbalance = loanbalance;
     }
 
@@ -218,11 +219,11 @@ public class Loandetails implements Serializable {
         this.membercode = membercode;
     }
 
-    public BigInteger getNextpaymentamount() {
+    public BigDecimal getNextpaymentamount() {
         return nextpaymentamount;
     }
 
-    public void setNextpaymentamount(BigInteger nextpaymentamount) {
+    public void setNextpaymentamount(BigDecimal nextpaymentamount) {
         this.nextpaymentamount = nextpaymentamount;
     }
 
@@ -234,27 +235,27 @@ public class Loandetails implements Serializable {
         this.nextpaymentdate = nextpaymentdate;
     }
 
-    public BigInteger getPrincipletotal() {
+    public BigDecimal getPrincipletotal() {
         return principletotal;
     }
 
-    public void setPrincipletotal(BigInteger principletotal) {
+    public void setPrincipletotal(BigDecimal principletotal) {
         this.principletotal = principletotal;
     }
 
-    public BigInteger getTotalinterestpaid() {
+    public BigDecimal getTotalinterestpaid() {
         return totalinterestpaid;
     }
 
-    public void setTotalinterestpaid(BigInteger totalinterestpaid) {
+    public void setTotalinterestpaid(BigDecimal totalinterestpaid) {
         this.totalinterestpaid = totalinterestpaid;
     }
 
-    public BigInteger getTotalpriciplepaid() {
+    public BigDecimal getTotalpriciplepaid() {
         return totalpriciplepaid;
     }
 
-    public void setTotalpriciplepaid(BigInteger totalpriciplepaid) {
+    public void setTotalpriciplepaid(BigDecimal totalpriciplepaid) {
         this.totalpriciplepaid = totalpriciplepaid;
     }
 

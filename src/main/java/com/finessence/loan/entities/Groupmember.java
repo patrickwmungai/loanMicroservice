@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
@@ -117,11 +118,21 @@ public class Groupmember implements Serializable {
     @Column(name = "TITLE")
     private String title;
     @Column(name = "MONTHLY_SALARY")
-    private double monthlySalary;
+    private BigDecimal monthlySalary;
+    @Column(name = "IDNUMBER")
+    private String idnumber;
 
     public Groupmember() {
     }
 
+    public String getIdnumber() {
+        return idnumber;
+    }
+
+    public void setIdnumber(String idnumber) {
+        this.idnumber = idnumber;
+    }
+    
     public String getMembercode() {
         return membercode;
     }
@@ -289,12 +300,12 @@ public class Groupmember implements Serializable {
         this.id = id;
     }
 
-    public double getMonthlySalary() {
+    public BigDecimal getMonthlySalary() {
         return monthlySalary;
     }
 
-    public void setMonthlySalary(double monthlySalary) {
+    public void setMonthlySalary(BigDecimal monthlySalary) {
         this.monthlySalary = monthlySalary;
     }
-    
+
 }

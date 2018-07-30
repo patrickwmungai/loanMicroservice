@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.finessence.loan.repository.CrudService;
 import com.finessence.loan.services.GlobalFunctions;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
@@ -60,7 +61,7 @@ public class LoanTypeController {
             BigInteger maxamount = loantype.getMaximumloanamount() == null ? BigInteger.ZERO : loantype.getMaximumloanamount();
             loantype.setMaximumloanamount(maxamount);
             loantype.setIscheckoff(ischeckoff);
-            loantype.setInsurancefee(Double.parseDouble("0"));
+            loantype.setInsurancefee(new BigDecimal("0"));
             loantype.setInsurancefeetype("Fixed");
             loantype.setCreatedBy(Integer.parseInt(token.getUserid()));
             loantype.setUpdatedBy(Integer.parseInt(token.getUserid()));
@@ -239,7 +240,7 @@ public class LoanTypeController {
                                 crudService.saveOrUpdate(loanType);
                                 //send notification to the member
                                 //enter rejection to approvals table
-                                globalFunctions.logApprovals(loanType.getCurrentApprovalLevel(), loanType.getGroupid(), approvalComments, loanType.getApprovalStatus(), BigInteger.ZERO, BigInteger.ZERO, loanType.getId(), "LOAN_TYPE", Integer.parseInt(token.getUserid()));
+                                globalFunctions.logApprovals(loanType.getCurrentApprovalLevel(), loanType.getGroupid(), approvalComments, loanType.getApprovalStatus(), BigDecimal.ZERO, BigDecimal.ZERO, loanType.getId(), "LOAN_TYPE", Integer.parseInt(token.getUserid()));
                             } else {//Action Approve
                                 Integer currentApprovalLevel = loanType.getCurrentApprovalLevel();
                                 //Get position of current approval level
@@ -259,7 +260,7 @@ public class LoanTypeController {
                                 loanType.setCurrentApprovalLevel(nextApprovalLevel);
                                 loanType.setUpdatedBy(Integer.parseInt(token.getUserid()));
                                 crudService.saveOrUpdate(loanType);
-                                globalFunctions.logApprovals(currentApprovalLevel, loanType.getGroupid(), approvalComments, "Approved", BigInteger.ZERO, BigInteger.ZERO, loanType.getId(), "LOAN_APPLICATION", Integer.parseInt(token.getUserid()));
+                                globalFunctions.logApprovals(currentApprovalLevel, loanType.getGroupid(), approvalComments, "Approved", BigDecimal.ZERO, BigDecimal.ZERO, loanType.getId(), "LOAN_APPLICATION", Integer.parseInt(token.getUserid()));
                             }
 
                         }
@@ -317,7 +318,7 @@ public class LoanTypeController {
 
     @RequestMapping(value = "/findApprovedLoanTypes", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<?> findApprovedLoanTypes(@RequestHeader(value = "Authorization") String authKey, @RequestParam("currentApprovalLevel") Integer currentApprovalLevel, @RequestParam("approvalStatus") String approvalStatus, @RequestParam("start") int start, @RequestParam("end") int end) {
+    public ResponseEntity<?> findApprovedLoanTypes(@RequestHeader(value = "Authorization") String authKey, @RequestParam("start") int start, @RequestParam("end") int end) {
         ResponseEntity<?> res = null;
         //return record set and total count of rows on the entity
         try {
@@ -328,7 +329,7 @@ public class LoanTypeController {
                 addedQueryfilter = " and groupid ='"+token.getGroupID()+"' ";
             }
             
-            String q = "select r from Loantype r where and approvalStatus=:approvalStatus "+addedQueryfilter;
+            String q = "select r from Loantype r where approvalStatus=:approvalStatus "+addedQueryfilter;
             Map<String, Object> map = new HashMap<>();
             map.put("approvalStatus", "Approved");
             List<Loantype> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
