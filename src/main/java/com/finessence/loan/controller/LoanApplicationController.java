@@ -99,10 +99,10 @@ public class LoanApplicationController {
                 savingAccounttype = globalFunctions.getAccountByName("SAVING");
                 memberSavingsAccount = globalFunctions.getMemberaccountByAccountTypeAndGroupIdAndMemberCode(savingAccounttype.getTypecode() + "KES", loan.getGroupid(), loan.getMembercode());
 
-                Integer savingsAccountBalance = Integer.parseInt(memberSavingsAccount.getAccountbalance().toString());
+                BigDecimal savingsAccountBalance = memberSavingsAccount.getAccountbalance();
 
                 Integer savingsfactor = loantype.getSavingsfactor();
-                Integer savingsLimit = savingsAccountBalance * savingsfactor;
+                BigDecimal savingsLimit = savingsAccountBalance.multiply(new BigDecimal(savingsfactor)) ;
 
                 LOG.info("Applied Amount {} savings amount {} loantype factor {}", appliedamount, savingsAccountBalance, savingsfactor);
                 //ensure loan has gurantors
@@ -119,7 +119,7 @@ public class LoanApplicationController {
                     res = new ResponseEntity<>(responseCodes.DUPLICATE_LOAN, HttpStatus.OK);
                 } else if (!gurantorSavingsSufficientToLoan(savingAccounttype, loan)) {
                     res = new ResponseEntity<>(responseCodes.GURANTOR_SAVINGS_AMOUNT_NOT_SUFFICIENT_TO_LOAN, HttpStatus.OK);
-                } else if (savingsLimit < appliedamount) {//ensure the amounts are within savings limit
+                } else if (savingsLimit.longValue() < appliedamount.longValue()) {//ensure the amounts are within savings limit
                     ApiResponse VALIDATION_FAIL = responseCodes.LOAN_AMOUNT_EXEEDS_FACTOR_LIMIT;
                     String errorMsg = VALIDATION_FAIL.getResponseDescription().replace("<AMOUNT>", appliedamount.toString()).replace("<FACTOR>", savingsfactor.toString()).replace("<SAVINGS>", savingsAccountBalance.toString()).replace("<FACTORSAVINGS>", savingsLimit.toString());
                     VALIDATION_FAIL.setResponseDescription(errorMsg);
@@ -263,14 +263,14 @@ public class LoanApplicationController {
     }
 
     private boolean gurantorSavingsSufficientToLoan(Accounttype savingAccounttype, Loanapplication loan) {
-        Integer totalGurantorSavings = 0;
+        BigDecimal totalGurantorSavings = BigDecimal.ZERO;
         for (Loanguarantor loanguarantor : loan.getLoanguarantors()) {
             Memberaccount memberSavingsAccount = globalFunctions.getMemberaccountByAccountTypeAndGroupIdAndMemberCode(savingAccounttype.getTypecode() + "KES", loan.getGroupid(), loanguarantor.getMembercode());
 
-            Integer savingsAccountBalance = Integer.parseInt(memberSavingsAccount.getAccountbalance().toString());
-            totalGurantorSavings = totalGurantorSavings + savingsAccountBalance;
+            BigDecimal savingsAccountBalance = memberSavingsAccount.getAccountbalance();
+            totalGurantorSavings = totalGurantorSavings.add(savingsAccountBalance);
         }
-        if (totalGurantorSavings >= Integer.parseInt(loan.getAppliedamount().toString())) {
+        if (totalGurantorSavings.longValue() >= loan.getAppliedamount().longValue()) {
             return true;
         }
         return false;
