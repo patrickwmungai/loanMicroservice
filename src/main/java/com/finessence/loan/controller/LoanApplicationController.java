@@ -382,7 +382,7 @@ public class LoanApplicationController {
                             //Send notification to next apprvers
                             if (loan.getApprovalStatus().equals("Pending")) {
                                 String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(loan.getCurrentApprovalLevel(), "LOAN_APPLICATION");
-                                List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermissionAndHaveNotApproved(loan.getGroupid(), nextApprovalPermissionName,"LOAN_APPLICATION",loan.getId().intValue());
+                                List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermissionAndHaveNotApproved(loan.getGroupid(), nextApprovalPermissionName, "LOAN_APPLICATION", loan.getId().intValue());
                                 Invgroup group = globalFunctions.getGroupById(token.getGroupID());
                                 for (Users user : nextApproversList) {
                                     MessagePayload messagePayload = new MessagePayload();
@@ -768,6 +768,36 @@ public class LoanApplicationController {
             } else {
                 LOG.error("No such record");
                 res = new ResponseEntity<>(responseCodes.NO_RECORDS_FOUND, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Error Occured:" + ex.getMessage());
+            res = new ResponseEntity<>(responseCodes.EXCEPTION_OCCURRED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return res;
+    }
+
+    /*Loan Summary tab*/
+    @RequestMapping(value = "/loanSummary", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> findLoanDetailsByMemberCode(@RequestHeader(value = "Authorization") String authKey,
+            @RequestParam("membercode") String memberCode, @RequestParam("start") int start, @RequestParam("end") int end) {
+        ResponseEntity<?> res = null;
+
+        try {
+            Token token = globalFunctions.parseJWT(authKey);
+            String q = "select r from Loandetails r where r.membercode=:memberCode)";
+            Map<String, Object> map = new HashMap<>();
+            map.put("memberCode", memberCode);
+            List<Loandetails> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
+            if (entity != null) {
+                LOG.info("Fetched List of:" + entity.size());
+                ApiResponse SUCCESS = responseCodes.SUCCESS;
+                SUCCESS.setEntity(entity);
+                res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+            } else {
+                LOG.error("No records found");
+                res = new ResponseEntity<>(responseCodes.NO_RECORDS_FOUND, HttpStatus.OK);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
