@@ -28,6 +28,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -467,7 +468,7 @@ public class GlobalFunctions {
         BigDecimal interestRate = loanapplication.getInterestRate().divide(new BigDecimal("100"));
         BigDecimal interestAmountTotal = loanapplication.getAppliedamount().multiply(interestRate);
         BigDecimal totalAmount = loanapplication.getAppliedamount().add(interestAmountTotal);
-        BigDecimal installementAmount = totalAmount.divide(new BigDecimal(loanapplication.getRepaymentPeriod().toString()));
+        BigDecimal installementAmount = totalAmount.divide(new BigDecimal(loanapplication.getRepaymentPeriod().longValue()), 2, RoundingMode.HALF_UP);
         loandetails.setInstallmentamount(installementAmount);
         loandetails.setInteresttotal(interestAmountTotal);
         loandetails.setLastpaymentamount(BigDecimal.ZERO);
@@ -1144,7 +1145,7 @@ public class GlobalFunctions {
     }
 
     private BigDecimal getInsuranceFeeByGroupIdAndAmount(String groupId, BigDecimal amount, Integer repaymentPeriod) {
-        String q = "select r from InsuranceFeeConfigs r where groupId = :groupId and upToAmount<=:upToAmount and repaymentPeriod<=:repaymentPeriod by Amount desc limit 1";
+        String q = "select r from InsuranceFeeConfigs r where groupId = :groupId and upToAmount<=:upToAmount and repaymentPeriod<=:repaymentPeriod order by upToAmount desc,repaymentPeriod desc";
 
         Map<String, Object> params = new HashMap<>();
         params.put("groupId", groupId);
