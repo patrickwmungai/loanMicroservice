@@ -6,6 +6,7 @@
 package com.finessence.loan.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -45,13 +46,15 @@ public class InsuranceFeeConfigs implements Serializable {
     private Integer id;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "UP_TO_AMOUNT")
-    private Double upToAmount;
+    private BigDecimal upToAmount;
     @Column(name = "FEE")
-    private Double fee;
+    private BigDecimal fee;
     @Column(name = "CREATED_BY")
     private Integer createdBy;
     @Column(name = "UPDATED_BY")
     private Integer updatedBy;
+    @Column(name = "REPAYMENT_PERIOD")
+    private Integer repaymentPeriod;
     @Column(name = "DATE_CREATED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateCreated;
@@ -77,22 +80,30 @@ public class InsuranceFeeConfigs implements Serializable {
         this.id = id;
     }
 
-    public Double getUpToAmount() {
+    public BigDecimal getUpToAmount() {
         return upToAmount;
     }
 
-    public void setUpToAmount(Double upToAmount) {
+    public void setUpToAmount(BigDecimal upToAmount) {
         this.upToAmount = upToAmount;
     }
 
-    public Double getFee() {
+    public BigDecimal getFee() {
         return fee;
     }
 
-    public void setFee(Double fee) {
+    public void setFee(BigDecimal fee) {
         this.fee = fee;
     }
 
+    public Integer getRepaymentPeriod() {
+        return repaymentPeriod;
+    }
+
+    public void setRepaymentPeriod(Integer repaymentPeriod) {
+        this.repaymentPeriod = repaymentPeriod;
+    }
+    
     public Integer getCreatedBy() {
         return createdBy;
     }

@@ -2,12 +2,16 @@ package com.finessence.loan.controller;
 
 import com.finessence.loan.entities.GroupApprovalLevel;
 import com.finessence.loan.entities.GroupApprovalLevelsConfig;
+import com.finessence.loan.entities.Invgroup;
 import com.finessence.loan.entities.LoanDisbursements;
 import com.finessence.loan.entities.Loanapplication;
+import com.finessence.loan.entities.Users;
 import com.finessence.loan.model.ApiResponse;
 import com.finessence.loan.model.ApprovalPostRequest;
+import com.finessence.loan.model.MessagePayload;
 import com.finessence.loan.model.ResponseCodes;
 import com.finessence.loan.model.Token;
+import com.finessence.loan.processes.SendNotification;
 import java.util.List;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.finessence.loan.repository.CrudService;
 import com.finessence.loan.services.GlobalFunctions;
+import com.finessence.loan.services.RestTemplateServices;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -50,6 +58,11 @@ public class LoanDisbursementController {
 
     @Autowired
     ResponseCodes responseCodes;
+
+    @Autowired
+    RestTemplateServices resttemplateService;
+
+    private static ThreadPoolExecutor exec_service = new ThreadPoolExecutor(10, 10, 5000, TimeUnit.SECONDS, new LinkedBlockingQueue());
 
     @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -214,6 +227,25 @@ public class LoanDisbursementController {
 //                            if (disbursement.getApprovalStatus().equalsIgnoreCase("Approved")) {
 //                                globalFunctions.processApprovedDisbursement(disbursement, loanApplication, token);
 //                            }
+                            //Send notification to next apprvers
+                            if (disbursement.getApprovalStatus().equals("Pending")) {
+                                String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(disbursement.getCurrentApprovalLevel(), "LOAN_DISBURSEMENT");
+                                List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermissionAndHaveNotApproved(disbursement.getGroupId(), nextApprovalPermissionName, "LOAN_DISBURSEMENT",disbursement.getId());
+                                Invgroup group = globalFunctions.getGroupById(token.getGroupID());
+                                for (Users user : nextApproversList) {
+                                    MessagePayload messagePayload = new MessagePayload();
+                                    String message = "Dear " + user.getUserName() + ", you have some disbursements records pending your action.";
+                                    messagePayload.setMessage(message);
+                                    messagePayload.setToPhone(user.getPhoneNumber());
+                                    messagePayload.setToEmail(user.getEmail());
+                                    messagePayload.setSubject("Disbursement Approval Notification");
+                                    messagePayload.setUserName(group.getMessagingUsername());
+                                    messagePayload.setApiKey(group.getMessagingKey());
+                                    messagePayload.setMessageMode("S");
+                                    exec_service.execute(new SendNotification(resttemplateService, env, messagePayload));
+
+                                }
+                            }
                         }
 
                     }

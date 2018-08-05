@@ -67,7 +67,10 @@ public class Invgroup implements Serializable {
     private int isAdminGroup;
     @Column(name = "REPAYMENT_DAY")
     private int repaymentDay;
-    
+    @Column(name = "MESSAGINGAPIKEY")
+    private String messagingKey;
+    @Column(name = "MESSAGINGUSERNAME")
+    private String messagingUsername;
 
     public Invgroup() {
     }
@@ -167,7 +170,21 @@ public class Invgroup implements Serializable {
     public void setRepaymentDay(int repaymentDay) {
         this.repaymentDay = repaymentDay;
     }
-    
-    
-    
+
+    public String getMessagingKey() {
+        return messagingKey;
+    }
+
+    public void setMessagingKey(String messagingKey) {
+        this.messagingKey = messagingKey;
+    }
+
+    public String getMessagingUsername() {
+        return messagingUsername;
+    }
+
+    public void setMessagingUsername(String messagingUsername) {
+        this.messagingUsername = messagingUsername;
+    }
+        
 }

@@ -14,6 +14,7 @@ com/finessence/loan/config/security/RestAuthenticationEntryPoint.class
 com/finessence/loan/repository/GenericCrudService.class
 com/finessence/loan/util/GlobalVars.class
 com/finessence/loan/entities/RoleMap.class
+com/finessence/loan/model/MessagePayload.class
 com/finessence/loan/config/security/UserNotEnabledException.class
 com/finessence/loan/Application.class
 com/finessence/loan/config/security/RestAuthenticationFailureHandler.class
@@ -60,6 +61,7 @@ com/finessence/loan/controller/ApprovalsController.class
 com/finessence/loan/controller/LoanTypeController.class
 com/finessence/loan/services/GlobalFunctions.class
 com/finessence/loan/entities/Loandetails.class
+com/finessence/loan/processes/SendNotification.class
 com/finessence/loan/config/SwaggerConfiguration.class
 com/finessence/loan/repository/CrudService.class
 com/finessence/loan/config/security/SecurityUtils.class

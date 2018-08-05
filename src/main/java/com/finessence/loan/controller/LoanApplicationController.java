@@ -4,6 +4,7 @@ import com.finessence.loan.entities.Accounttype;
 import com.finessence.loan.entities.ApprovalsDone;
 import com.finessence.loan.entities.GroupApprovalLevelsConfig;
 import com.finessence.loan.entities.Groupmember;
+import com.finessence.loan.entities.Invgroup;
 import com.finessence.loan.entities.LoanSecurity;
 import com.finessence.loan.entities.Loanapplication;
 import com.finessence.loan.entities.Loandetails;
@@ -11,11 +12,14 @@ import com.finessence.loan.entities.Loanguarantor;
 import com.finessence.loan.entities.Loantype;
 import com.finessence.loan.entities.LonSchedule;
 import com.finessence.loan.entities.Memberaccount;
+import com.finessence.loan.entities.Users;
 import com.finessence.loan.model.ApiResponse;
 import com.finessence.loan.model.ApprovalPostRequest;
 import com.finessence.loan.model.LoanScheduleEnvelope;
+import com.finessence.loan.model.MessagePayload;
 import com.finessence.loan.model.ResponseCodes;
 import com.finessence.loan.model.Token;
+import com.finessence.loan.processes.SendNotification;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -31,12 +35,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestHeader;
 import com.finessence.loan.repository.CrudService;
 import com.finessence.loan.services.GlobalFunctions;
+import com.finessence.loan.services.RestTemplateServices;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +70,10 @@ public class LoanApplicationController {
 
     @Autowired
     ResponseCodes responseCodes;
+    @Autowired
+    RestTemplateServices resttemplateService;
+
+    private static ThreadPoolExecutor exec_service = new ThreadPoolExecutor(10, 10, 5000, TimeUnit.SECONDS, new LinkedBlockingQueue());
 
     @Transactional
     @RequestMapping(value = "/create", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -102,7 +114,7 @@ public class LoanApplicationController {
                 BigDecimal savingsAccountBalance = memberSavingsAccount.getAccountbalance();
 
                 Integer savingsfactor = loantype.getSavingsfactor();
-                BigDecimal savingsLimit = savingsAccountBalance.multiply(new BigDecimal(savingsfactor)) ;
+                BigDecimal savingsLimit = savingsAccountBalance.multiply(new BigDecimal(savingsfactor));
 
                 LOG.info("Applied Amount {} savings amount {} loantype factor {}", appliedamount, savingsAccountBalance, savingsfactor);
                 //ensure loan has gurantors
@@ -283,7 +295,7 @@ public class LoanApplicationController {
         try {
             Token token = globalFunctions.parseJWT(authKey);
 
-            Loanapplication entity = crudService.findEntity(Integer.parseInt(id), Loanapplication.class
+            Loanapplication entity = crudService.findEntity(Long.parseLong(id), Loanapplication.class
             );
 
             if (entity != null) {
@@ -366,6 +378,44 @@ public class LoanApplicationController {
                             if (loan.getApprovalStatus().equalsIgnoreCase("Approved")) {
                                 processLoanAfterApprovals(loan, token);
                             }
+
+                            //Send notification to next apprvers
+                            if (loan.getApprovalStatus().equals("Pending")) {
+                                String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(loan.getCurrentApprovalLevel(), "LOAN_APPLICATION");
+                                List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermissionAndHaveNotApproved(loan.getGroupid(), nextApprovalPermissionName,"LOAN_APPLICATION",loan.getId().intValue());
+                                Invgroup group = globalFunctions.getGroupById(token.getGroupID());
+                                for (Users user : nextApproversList) {
+                                    MessagePayload messagePayload = new MessagePayload();
+                                    String message = "Dear " + user.getUserName() + ", you have some loan records pending your action.";
+                                    messagePayload.setMessage(message);
+                                    messagePayload.setToPhone(user.getPhoneNumber());
+                                    messagePayload.setToEmail(user.getEmail());
+                                    messagePayload.setSubject("Loan Approval Notification");
+                                    messagePayload.setUserName(group.getMessagingUsername());
+                                    messagePayload.setApiKey(group.getMessagingKey());
+                                    messagePayload.setMessageMode("S");
+                                    exec_service.execute(new SendNotification(resttemplateService, env, messagePayload));
+
+                                }
+                            } else if (loan.getApprovalStatus().equals("Approved")) {
+                                //Send notification to disburment approval team
+                                String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(1, "LOAN_DISBURSEMENT");
+                                List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermission(loan.getGroupid(), nextApprovalPermissionName);
+                                Invgroup group = globalFunctions.getGroupById(token.getGroupID());
+                                for (Users user : nextApproversList) {
+                                    MessagePayload messagePayload = new MessagePayload();
+                                    String message = "Dear " + user.getUserName() + ", you have some disbursement records pending your action.";
+                                    messagePayload.setMessage(message);
+                                    messagePayload.setToPhone(user.getPhoneNumber());
+                                    messagePayload.setToEmail(user.getEmail());
+                                    messagePayload.setSubject("Disburmsent Approval Notification");
+                                    messagePayload.setUserName(group.getMessagingUsername());
+                                    messagePayload.setApiKey(group.getMessagingKey());
+                                    messagePayload.setMessageMode("S");
+                                    exec_service.execute(new SendNotification(resttemplateService, env, messagePayload));
+
+                                }
+                            }
                         }
 
                     }
@@ -375,6 +425,40 @@ public class LoanApplicationController {
                 }
 
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Error Occured:" + ex.getMessage());
+            res = new ResponseEntity<>(responseCodes.EXCEPTION_OCCURRED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return res;
+    }
+
+    @RequestMapping(value = "/testApprovalNotificaiton", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> testApprovalNotificaiton(@RequestHeader(value = "Authorization") String authKey, @RequestBody Loanapplication loan) {
+        ResponseEntity<?> res = null;
+        try {
+            Token token = globalFunctions.parseJWT(authKey);
+            String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(loan.getCurrentApprovalLevel(), "LOAN_APPLICATION");
+            List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermission(loan.getGroupid(), nextApprovalPermissionName);
+            Invgroup group = globalFunctions.getGroupById(token.getGroupID());
+            for (Users user : nextApproversList) {
+                MessagePayload messagePayload = new MessagePayload();
+                String message = "Dear " + user.getUserName() + ", you have some loan records pending your action.";
+                messagePayload.setMessage(message);
+                messagePayload.setToPhone(user.getPhoneNumber());
+                messagePayload.setToEmail(user.getEmail());
+                messagePayload.setSubject("Loan Approval Notification");
+                messagePayload.setUserName(group.getMessagingUsername());
+                messagePayload.setApiKey(group.getMessagingKey());
+                messagePayload.setMessageMode("S");
+                exec_service.execute(new SendNotification(resttemplateService, env, messagePayload));
+
+            }
+
+            ApiResponse SUCCESS = responseCodes.SUCCESS;
+            SUCCESS.setEntity(loan);
+            res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
             LOG.error("Error Occured:" + ex.getMessage());
@@ -489,9 +573,10 @@ public class LoanApplicationController {
         }
         return res;
     }
+
     @RequestMapping(value = "/findByMemberCodeOrPhoneOrIdNumber", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<?> findByMemberCodeOrPhoneOrIdNumber(@RequestHeader(value = "Authorization") String authKey, 
+    public ResponseEntity<?> findByMemberCodeOrPhoneOrIdNumber(@RequestHeader(value = "Authorization") String authKey,
             @RequestParam("searchParam") String searchParam, @RequestParam("start") int start, @RequestParam("end") int end) {
         ResponseEntity<?> res = null;
         //return record set and total count of rows on the entity
@@ -501,7 +586,7 @@ public class LoanApplicationController {
             String q = "select r from Loanapplication r where membercode=:searchParam or"
                     + " membercode in (select membercode from Groupmember p where telephone=:searchParam or idnumber=:searchParam)";
             Map<String, Object> map = new HashMap<>();
-            map.put("searchParam", searchParam);            
+            map.put("searchParam", searchParam);
             List<Loanapplication> entity = crudService.fetchWithHibernateQuery(q, map, start, end);
 
             //List<LoanReport> entity = loanRepository.findCounties();

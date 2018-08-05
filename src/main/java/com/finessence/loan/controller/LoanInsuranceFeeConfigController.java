@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import com.finessence.loan.repository.CrudService;
 import com.finessence.loan.services.GlobalFunctions;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +55,10 @@ public class LoanInsuranceFeeConfigController {
             Token token = globalFunctions.parseJWT(authKey);
 
             insuranceFeeConfigs.setCreatedBy(Integer.parseInt(token.getUserid()));
-
+            insuranceFeeConfigs.setUpdatedBy(Integer.parseInt(token.getUserid()));
+            insuranceFeeConfigs.setDateCreated(new Date());
+            insuranceFeeConfigs.setTimeCreated(new Date());
+            
             Object test = crudService.save(insuranceFeeConfigs);
 
             if (test != null) {
@@ -110,6 +114,28 @@ public class LoanInsuranceFeeConfigController {
 
             ApiResponse SUCCESS = responseCodes.SUCCESS;
             SUCCESS.setEntity(insuranceFeeConfigs);
+            res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LOG.error("Error Occured:" + ex.getMessage());
+            res = new ResponseEntity<>(responseCodes.EXCEPTION_OCCURRED, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return res;
+    }
+
+    @RequestMapping(value = "/cleanGroupInsuranceFees", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> cleanGroupInsuranceFees(@RequestHeader(value = "Authorization") String authKey, @RequestParam("groupId") String groupId) {
+        ResponseEntity<?> res = null;
+        try {
+            Token token = globalFunctions.parseJWT(authKey);
+
+            String q = "delete from InsuranceFeeConfigs r  where groupId='" + groupId + "'";
+
+            crudService.executeHibernateQuery(q, Collections.EMPTY_MAP);
+
+            ApiResponse SUCCESS = responseCodes.SUCCESS;
+            SUCCESS.setEntity(null);
             res = new ResponseEntity<>(SUCCESS, HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();

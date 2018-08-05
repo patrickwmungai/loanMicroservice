@@ -5,6 +5,7 @@ import com.finessence.loan.entities.ApprovalsDone;
 import com.finessence.loan.entities.GroupApprovalLevel;
 import com.finessence.loan.entities.GroupApprovalLevelsConfig;
 import com.finessence.loan.entities.Groupmember;
+import com.finessence.loan.entities.InsuranceFeeConfigs;
 import com.finessence.loan.entities.Invgroup;
 import com.finessence.loan.entities.LoanDisbursements;
 import com.finessence.loan.entities.LoanRepayment;
@@ -195,7 +196,7 @@ public class GlobalFunctions {
             String applicaitonfeeType = loantype.getApplicationfeetype() == null ? "Amount" : loantype.getApplicationfeetype();
             String insurancefeeType = loantype.getInsurancefeetype() == null ? "Amount" : loantype.getApplicationfeetype();
             BigDecimal applicationfee = loantype.getApplicationfee() == null ? BigDecimal.ZERO : applicaitonfeeType.equals("Amount") ? loantype.getApplicationfee() : ((loantype.getApplicationfee().divide(new BigDecimal("100"))).multiply(loanapplication.getAppliedamount()));
-            BigDecimal insurancefee = loantype.getInsurancefee() == null ? BigDecimal.ZERO : insurancefeeType.equals("Amount") ? loantype.getInsurancefee() : ((loantype.getInsurancefee().divide(new BigDecimal("100"))).multiply(loanapplication.getAppliedamount()));
+            BigDecimal insurancefee = getInsuranceFeeByGroupIdAndAmount(loanapplication.getGroupid(), loanapplication.getAppliedamount(), loanapplication.getRepaymentPeriod());// loantype.getInsurancefee() == null ? BigDecimal.ZERO : insurancefeeType.equals("Amount") ? loantype.getInsurancefee() : ((loantype.getInsurancefee().divide(new BigDecimal("100"))).multiply(loanapplication.getAppliedamount()));
             if (applicationfee.compareTo(BigDecimal.ZERO) == 1) {
                 //get application  fee account
                 Accounttype accounttype = getAccountByName("APPLICATION_FEE");
@@ -1142,6 +1143,77 @@ public class GlobalFunctions {
         return entity == null ? null : entity.get(0);
     }
 
+    private BigDecimal getInsuranceFeeByGroupIdAndAmount(String groupId, BigDecimal amount, Integer repaymentPeriod) {
+        String q = "select r from InsuranceFeeConfigs r where groupId = :groupId and upToAmount<=:upToAmount and repaymentPeriod<=:repaymentPeriod by Amount desc limit 1";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupId", groupId);
+        params.put("upToAmount", amount);
+        params.put("repaymentPeriod", repaymentPeriod);
+        List<InsuranceFeeConfigs> entity = crudService.fetchWithHibernateQuery(q, params);
+
+        return entity == null ? BigDecimal.ZERO : entity.get(0).getFee();
+    }
+
+    public List<Users> getUsersWithParticularPermission(String groupId, String permissionName) {
+        String q = "select r from Users r where groupId = :groupId and id in (select userId from RoleMap where roleId in "
+                + " (select roleId from PermissionMap where permissionId in "
+                + " (select id from Permission where name=:name ) ))";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupId", groupId);
+        params.put("name", permissionName);
+        List<Users> entity = crudService.fetchWithHibernateQuery(q, params);
+
+        return entity;
+    }
+
+    public List<Users> getUsersWithParticularPermissionAndHaveNotApproved(String groupId, String permissionName,String type,Integer recordId) {
+        String q = "select r from Users r where groupId = :groupId and id not in (select approverId from ApprovalsDone where type=:type and recordId=:recordId) and id in (select userId from RoleMap where roleId in "
+                + " (select roleId from PermissionMap where permissionId in "
+                + " (select id from Permission where name=:name ) ))";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupId", groupId);
+        params.put("name", permissionName);
+        params.put("recordId", recordId);
+        params.put("type", type);
+        List<Users> entity = crudService.fetchWithHibernateQuery(q, params);
+
+        return entity;
+    }
+    
+    public String resolveApprovalPermissionByLevel(Integer level, String approvalType) {
+        String permissionName = "";
+
+        if (approvalType.equals("LOAN_APPLICATION")) {
+            switch (level) {
+                case 1:
+                    permissionName = "administration.loansapproval.level1";
+                    break;
+                case 2:
+                    permissionName = "administration.loansapproval.level2";
+                    break;
+                case 3:
+                    permissionName = "administration.loansapproval.level3";
+                    break;
+            }
+        } else if (approvalType.equals("LOAN_DISBURSEMENT")) {
+            switch (level) {
+                case 1:
+                    permissionName = "administration.disbursementapproval.level1";
+                    break;
+                case 2:
+                    permissionName = "administration.disbursementapproval.level2";
+                    break;
+                case 3:
+                    permissionName = "administration.disbursementapproval.level3";
+                    break;
+            }
+        }
+        return permissionName;
+    }
+
     private void repayLoanDataEntry(LonSchedule lonSchedule, String membercode) {
         LoanRepayment loanRepayment = new LoanRepayment();
         loanRepayment.setCreatedBy(0);
@@ -1181,19 +1253,5 @@ public class GlobalFunctions {
         Memberaccount groupInterestAccount = getMemberaccountByAccountTypeAndAccountGroupId(accountTypeInterest.getTypecode() + "KES", lonSchedule.getGroupId());
         creditAccount(groupInterestAccount, lonSchedule.getInterest(), "Interest Payment");
 
-        //Update loan details
-//        Loanapplication loanapplication = crudService.findEntity(Long.parseLong(loandetails.getApplicationid().toString()), Loanapplication.class);
-//
-//        loandetails.setLastpaymentamount(loandetails.getInstallmentamount());
-//        loandetails.setLastpaymentdate(new Date());
-//        loandetails.setLoanbalance(loandetails.getLoanbalance().subtract(loandetails.getInstallmentamount()));
-//        Calendar c = new GregorianCalendar();
-//        c.add(Calendar.DATE, 30);
-//        Date dPlus30Days = c.getTime();
-//        loandetails.setNextpaymentdate(dPlus30Days);
-//        BigDecimal monthlyInterest = loandetails.getInteresttotal().divide(new BigDecimal(loanapplication.getRepaymentPeriod().toString()));
-//        loandetails.setTotalinterestpaid(loandetails.getTotalinterestpaid().add(monthlyInterest));
-//        loandetails.setTotalpriciplepaid(loandetails.getTotalpriciplepaid().add(loandetails.getInstallmentamount()));
-//        crudService.saveOrUpdate(loandetails);
     }
 }

@@ -23,6 +23,7 @@ datasource:
       format_sql: true
       dialect: org.hibernate.dialect.Oracle10gDialect
       timeout: 2000
+    notificationServiceUrl: http://178.79.148.209:15820/messaginggateway/messageconfig/dispatchmessage
 logging:
   file: finessence.log
   pattern:
