@@ -187,6 +187,44 @@ public class LoanApplicationController {
                         processLoanAfterApprovals(loan, token);
                     }
 
+                    //Send notification to next apprvers
+                    if (loan.getApprovalStatus().equals("Pending")) {
+                        String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(loan.getCurrentApprovalLevel(), "LOAN_APPLICATION");
+                        List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermissionAndHaveNotApproved(loan.getGroupid(), nextApprovalPermissionName, "LOAN_APPLICATION", loan.getId().intValue());
+                        Invgroup group = globalFunctions.getGroupById(token.getGroupID());
+                        for (Users user : nextApproversList) {
+                            MessagePayload messagePayload = new MessagePayload();
+                            String message = "Dear " + user.getUserName() + ", you have some loan records pending your action.";
+                            messagePayload.setMessage(message);
+                            messagePayload.setToPhone(user.getPhoneNumber());
+                            messagePayload.setToEmail(user.getEmail());
+                            messagePayload.setSubject("Loan Approval Notification");
+                            messagePayload.setUserName(group.getMessagingUsername());
+                            messagePayload.setApiKey(group.getMessagingKey());
+                            messagePayload.setMessageMode("S");
+                            exec_service.execute(new SendNotification(resttemplateService, env, messagePayload));
+
+                        }
+                    } else if (loan.getApprovalStatus().equals("Approved")) {
+                        //Send notification to disburment approval team
+                        String nextApprovalPermissionName = globalFunctions.resolveApprovalPermissionByLevel(1, "LOAN_DISBURSEMENT");
+                        List<Users> nextApproversList = globalFunctions.getUsersWithParticularPermission(loan.getGroupid(), nextApprovalPermissionName);
+                        Invgroup group = globalFunctions.getGroupById(token.getGroupID());
+                        for (Users user : nextApproversList) {
+                            MessagePayload messagePayload = new MessagePayload();
+                            String message = "Dear " + user.getUserName() + ", you have some disbursement records pending your action.";
+                            messagePayload.setMessage(message);
+                            messagePayload.setToPhone(user.getPhoneNumber());
+                            messagePayload.setToEmail(user.getEmail());
+                            messagePayload.setSubject("Disburmsent Approval Notification");
+                            messagePayload.setUserName(group.getMessagingUsername());
+                            messagePayload.setApiKey(group.getMessagingKey());
+                            messagePayload.setMessageMode("S");
+                            exec_service.execute(new SendNotification(resttemplateService, env, messagePayload));
+
+                        }
+                    }
+
                     //Cretion of loan account
                     ApiResponse SUCCESS = responseCodes.SUCCESS;
                     SUCCESS.setEntity(test);
